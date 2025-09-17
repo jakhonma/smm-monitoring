@@ -60,7 +60,7 @@ class KPIFormula(models.Model):
     points = models.PositiveIntegerField()          # shu min_value uchun beriladigan ball
 
     class Meta:
-        ordering = ["min_value"]  # adminda ustun tartib uchun
+        ordering = ["-min_value"]  # adminda ustun tartib uchun
     
     def __str__(self):
         return f"{self.social_network} - {self.metric} -> {self.min_value} -> {self.points}"

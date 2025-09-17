@@ -22,7 +22,7 @@ class RedisKPICache(IKPICache):
     """Redis orqali KPI cache (SRP - faqat cache ishlash uchun mas’ul)"""
 
     def refresh(self) -> None:
-        formulas = KPIFormula.objects.select_related("social_network").all()
+        formulas = KPIFormula.objects.select_related("social_network")
 
         grouped = defaultdict(lambda: defaultdict(list))
         for f in formulas:
@@ -37,7 +37,7 @@ class RedisKPICache(IKPICache):
         # Har bir metric ichida min_value bo‘yicha sortlab qo‘yamiz
         for sn_name, metrics in grouped.items():
             for metric, rows in metrics.items():
-                rows.sort(key=lambda x: x["min_value"])
+                rows.sort(key=lambda x: x["min_value"], reverse=True)
 
         cache.set(KPI_CACHE_KEY, dict(grouped), timeout=None)
 
@@ -46,4 +46,5 @@ class RedisKPICache(IKPICache):
         if not data:
             self.refresh()
             data = cache.get(KPI_CACHE_KEY)
+        # print("KPI CACHE:", data)
         return data
