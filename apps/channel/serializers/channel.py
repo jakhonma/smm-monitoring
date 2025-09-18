@@ -5,7 +5,7 @@ from apps.channel.models import Channel, SocialNetwork
 class ChannelSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=100)
-    logo = serializers.ImageField(required=False, allow_null=True)
+    # logo = serializers.ImageField(required=False, allow_null=True)
 
 
 class ChannelSocialAccountSerializer(serializers.Serializer):

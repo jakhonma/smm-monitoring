@@ -1,14 +1,17 @@
-from rest_framework.generics import RetrieveAPIView
+from rest_framework import generics, response, views, status
 from django.db.models import OuterRef, Subquery, F, IntegerField, ExpressionWrapper, Prefetch
 from django.db.models.functions import Coalesce
 from apps.channel.models import Channel, ChannelSocialAccount
 from apps.analytic.models import ChannelSocialStats
 from apps.analytic.serializers import ChannelWithStatsSerializer
+from apps.analytic.query import get_channel_last_one_year
+from apps.channel.serializers.channel import ChannelSerializer
 
 
-class ChannelWithStatsView(RetrieveAPIView):
+class ChannelWithStatsView(generics.RetrieveAPIView):
     serializer_class = ChannelWithStatsSerializer
     queryset = Channel.objects.all()
+    lookup_field = "name"
 
     def get_queryset(self):
         latest_stats = ChannelSocialStats.objects.filter(
@@ -44,3 +47,16 @@ class ChannelWithStatsView(RetrieveAPIView):
         return Channel.objects.prefetch_related(
             Prefetch("social_accounts", queryset=annotated_accounts)
         )
+
+
+class ChannelYearlyStatsAPIView(views.APIView):
+    """
+    Kanalning oxirgi 12 oylik statistikasi (ijtimoiy tarmoqlar bo‘yicha)
+    """
+
+    def get(self, request, channel_id):
+        try:
+            data = get_channel_last_one_year(channel_id)
+            return response.Response({"channel_id": channel_id, "stats": data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return response.Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

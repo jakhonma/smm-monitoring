@@ -3,6 +3,7 @@ from apps.channel.models import Channel, ChannelSocialAccount
 
 class ChannelSocialAccountStatsSerializer(serializers.ModelSerializer):
     social_network = serializers.CharField(source="social_network.name")
+    icon = serializers.ImageField(source="social_network.icon", read_only=True)
 
     latest_views = serializers.IntegerField(read_only=True)
     prev_views = serializers.IntegerField(read_only=True)
@@ -21,6 +22,7 @@ class ChannelSocialAccountStatsSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "social_network",
+            "icon",
             "latest_views",
             "prev_views",
             "diff_views",

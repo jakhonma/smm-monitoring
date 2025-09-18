@@ -2,7 +2,7 @@ DATABASE DATA
 
 Database user: postgres
 Database host: localhost
-Database post: 5432
+Database port: 5432
 Database name: smm-monitoring
 Database pasword: 0202
 

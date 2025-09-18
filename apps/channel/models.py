@@ -11,7 +11,11 @@ class BaseModel(models.Model):
 
 class Channel(BaseModel):
     """Asosiy kanal (mahalla, telekanal)"""
-    logo = models.ImageField(upload_to='channel_logos/', blank=True, null=True)
+    # logo = models.ImageField(upload_to='channel_logos/', blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return self.name
@@ -20,6 +24,7 @@ class Channel(BaseModel):
 class SocialNetwork(BaseModel):
     """Ijtimoiy tarmoq turi (Instagram, Telegram, Facebook)"""
     score = models.PositiveSmallIntegerField(default=0)
+    icon = models.ImageField(upload_to='social_network_icons/', blank=True, null=True)
 
     def __str__(self):
         return self.name

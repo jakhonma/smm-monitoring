@@ -1,23 +1,6 @@
 from .kpi_formula_cache import IKPICache
 from .network_score import Instagram, Telegram, Facebook
-
-def kpi_percent(score: int) -> str:
-    ranges = (
-        ((95, 100), 100),
-        ((89, 94), 90),
-        ((84, 88), 80),
-        ((78, 83), 70),
-        ((72, 77), 60),
-        ((66, 71), 50),
-        ((60, 65), 40),
-        ((54, 59), 30),
-        ((48, 53), 20),
-        ((42, 47), 10),
-    )
-    for (low, high), percent in ranges:
-        if low <= score <= high:
-            return percent
-    return 0  # agar past bo'lsa
+from .kpi_percent import kpi_percent
 
 
 class KPIService:
@@ -27,9 +10,9 @@ class KPIService:
 
         # Cache’dan oladigan network handlerlar
         self.networks = {
-            "instagram": Instagram(self, cache),
-            "telegram": Telegram(self, cache),
-            "facebook": Facebook(self, cache),
+            "instagram": Instagram(cache),
+            "telegram": Telegram(cache),
+            "facebook": Facebook(cache),
         }
 
     @staticmethod
@@ -52,50 +35,52 @@ class KPIService:
         return (current / prev) * 100
 
     def evaluate(self):
-        results = []
-        for emp in self.data:
-            emp_result = {"employee": emp["employee"], "channels": {}}
+        # results = []
+        # for emp in self.data:
+        #     emp_result = {"employee": emp["employee"], "channels": {}}
 
-            for channel_name, networks in emp["channels"].items():
-                channel_result = []
-                for net in networks:
-                    net_name = net["network"].lower()
-                    current = net["current"]
-                    prev = net["prev"]
+        #     for channel_name, networks in emp["channels"].items():
+        #         channel_result = []
+        #         for net in networks:
+        #             net_name = net["network"].lower()
+        #             current = net["current"]
+        #             prev = net["prev"]
 
-                    handler = self.networks.get(net_name)
-                    if not handler:
-                        continue
+        #             handler = self.networks.get(net_name)
+        #             if not handler:
+        #                 continue
 
-                    percentages = {
-                        m: self.calc_percentage(prev[m], current[m])
-                        for m in ["views", "followers", "content"]
-                    }
+        #             percentages = {
+        #                 m: self.calc_percentage(prev[m], current[m])
+        #                 for m in ["views", "followers", "content"]
+        #             }
 
-                    scores = {
-                        m: handler.score_count(current[m], m)
-                        for m in ["views", "followers", "content"]
-                    }
+        #             scores = {
+        #                 m: handler.score_count(current[m], m)
+        #                 for m in ["views", "followers", "content"]
+        #             }
 
-                    channel_result.append({
-                        "network": net["network"],
-                        "percentages": percentages,
-                        "scores": scores,
-                        "total_score": sum(scores.values())
-                    })
+        #             channel_result.append({
+        #                 "network": net["network"],
+        #                 "percentages": percentages,
+        #                 "scores": scores,
+        #                 "total_score": sum(scores.values())
+        #             })
 
-                emp_result["channels"][channel_name] = channel_result
-            results.append(emp_result)
+        #         emp_result["channels"][channel_name] = channel_result
+        #     results.append(emp_result)
         employees = []
         for emp in self.data:
             total_score = 0
             employee_result = {"emp": emp["employee"], "channels": [], 'kpi': 0}
-            for channel_name, networks in emp["channels"].items():
+            for channel in emp["channels"]:
                 score_sum = 0
-                for net in networks:
+                networks = []
+                for net in channel["social_networks"]:
                     net_name = net["network"].lower()
                     current = net["current"]
                     prev = net["prev"]
+                    networks.append(net_name)
 
                     handler = self.networks.get(net_name)
                     if not handler:
@@ -110,8 +95,10 @@ class KPIService:
                     print(view_score, follower_score, content_score)
                     print(score_sum, 333333333)
                 total_score += score_sum
+                print(channel)
                 employee_result["channels"].append({
-                    "channel": channel_name,
+                    "channel": channel['name'],
+                    "networks": networks,
                     "score": score_sum
                 })
             kpi_result = kpi_percent(total_score)

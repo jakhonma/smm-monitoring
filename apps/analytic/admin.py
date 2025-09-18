@@ -3,7 +3,8 @@ from .models import ChannelSocialStats, KPIFormula
 
 @admin.register(ChannelSocialStats)
 class ChannelSocialStatsAdmin(admin.ModelAdmin):
-    exclude = ('channel_social_account',)
+    # exclude = ('channel_social_account',)
+    pass
 
 
 @admin.register(KPIFormula)
